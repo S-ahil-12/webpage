@@ -1,26 +1,28 @@
-name: Deploy to EC2
- 
+name: Deploy code To ec2 Instance
+
 on:
-  push:
-    branches:
+  push: 
+    branches: 
       - main
- 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
- 
-      - name: Deploy via SSH
+
+      - name: Deploy code to Server
         env:
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}
+          HOST: ${{secrets.EC2_HOST}}
+          USER: ${{secrets.EC2_USER}}
+          KEY: ${{secrets.EC2_SSH_KEY}}
+
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/key.pem
+          mkdir -p ~/.ssh 
+          echo "${{KEY}}" > ~/.ssh/key.pem
           chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2>/dev/null
-          scp -i ~/.ssh/key.pem -r ./* $USER@$HOST:/tmp/deploy/
-          ssh -i ~/.ssh/key.pem $USER@$HOST "sudo cp -r /tmp/deploy/* /var/www/html/ && sudo rm -rf /tmp/deploy && sudo systemctl restart nginx"
+          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2> /dev/null
+          scp -i key.pem -r ./* $USER@$HOST:/tmp/deploy/
+          scp -i key.pem $USER@HOST "cp -r /tmp/deploy/* /var/www/html/ && rm -rf /tmp/deploy/* && systemctl restart nginx"
