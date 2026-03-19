@@ -3,311 +3,424 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyApp — Deployed</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
-
+  <title>Floating World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel+Decorative:wght@400&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg:       #0a0a0f;
-      --surface:  #13131c;
-      --border:   #1f1f30;
-      --accent:   #5cffb1;
-      --accent2:  #a78bfa;
-      --text:     #e8e8f0;
-      --muted:    #5a5a78;
-      --font-h:   'Syne', sans-serif;
-      --font-m:   'DM Mono', monospace;
+      --void: #05040a;
+      --deep: #0d0b1a;
+      --mist: #1a1630;
+      --gold: #c9a84c;
+      --gold-pale: #e8d5a0;
+      --silver: #9eb8d4;
+      --blush: #c9809a;
+      --glow: rgba(201,168,76,0.15);
     }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-m);
-      min-height: 100vh;
-      overflow-x: hidden;
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--void);
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--gold-pale);
+      cursor: default;
     }
 
-    /* ── Grid noise overlay ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: 0.35;
+    /* ── STARFIELD ── */
+    canvas#stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
       pointer-events: none;
     }
 
-    /* ── Glow blobs ── */
-    .blob {
-      position: fixed; border-radius: 50%;
-      filter: blur(120px); opacity: 0.18;
-      pointer-events: none; z-index: 0;
+    /* ── AURORA MESH ── */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(100,60,180,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 70%, rgba(30,100,160,0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 55% 20%, rgba(201,128,154,0.10) 0%, transparent 70%);
+      animation: auroraShift 18s ease-in-out infinite alternate;
     }
-    .blob-1 { width: 520px; height: 520px; background: var(--accent);  top: -160px; left: -140px; }
-    .blob-2 { width: 420px; height: 420px; background: var(--accent2); bottom: -120px; right: -100px; }
-
-    /* ── Nav ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.1rem 2.5rem;
-      border-bottom: 1px solid var(--border);
-      background: rgba(10,10,15,0.75);
-      backdrop-filter: blur(14px);
-    }
-    .logo {
-      font-family: var(--font-h);
-      font-weight: 800; font-size: 1.1rem;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a {
-      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--muted); text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--accent); }
-    .nav-badge {
-      font-size: 0.7rem; letter-spacing: 0.05em;
-      padding: 0.3rem 0.9rem;
-      border: 1px solid var(--accent);
-      border-radius: 2px; color: var(--accent);
+    @keyframes auroraShift {
+      0%   { transform: scale(1)   rotate(0deg); opacity: 0.7; }
+      50%  { transform: scale(1.1) rotate(1.5deg); opacity: 1; }
+      100% { transform: scale(0.97) rotate(-1deg); opacity: 0.8; }
     }
 
-    /* ── Hero ── */
-    main { position: relative; z-index: 1; }
-
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: flex-start;
-      padding: 8rem 2.5rem 4rem;
-      max-width: 900px;
-    }
-    .hero-tag {
-      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 1.6rem;
-      display: flex; align-items: center; gap: 0.6rem;
-    }
-    .hero-tag::before {
-      content: ''; display: inline-block;
-      width: 28px; height: 1px; background: var(--accent);
-    }
-    h1 {
-      font-family: var(--font-h);
-      font-size: clamp(3rem, 8vw, 6.5rem);
-      font-weight: 800; line-height: 0.95;
-      letter-spacing: -0.04em;
-      margin-bottom: 1.8rem;
-    }
-    h1 em {
-      font-style: normal;
-      -webkit-text-stroke: 1px var(--accent2);
-      color: transparent;
-    }
-    .hero-sub {
-      font-size: 0.95rem; line-height: 1.8;
-      color: var(--muted); max-width: 480px;
-      margin-bottom: 2.8rem;
-    }
-    .btn-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: var(--font-m); font-size: 0.8rem;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 0.85rem 1.8rem; text-decoration: none;
-      border: 1px solid; border-radius: 2px;
-      cursor: pointer; transition: all 0.22s;
-    }
-    .btn-primary {
-      background: var(--accent); color: var(--bg);
-      border-color: var(--accent);
-    }
-    .btn-primary:hover { background: transparent; color: var(--accent); }
-    .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
-    .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
-
-    /* ── Status bar ── */
-    .status-bar {
-      margin-top: 4rem;
-      display: flex; align-items: center; gap: 2rem;
-      padding: 1rem 1.4rem;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      background: var(--surface);
-      font-size: 0.75rem; color: var(--muted);
-      flex-wrap: wrap;
-    }
-    .status-item { display: flex; align-items: center; gap: 0.5rem; }
-    .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    /* ── SCENE ── */
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* ── Cards section ── */
-    .section {
-      padding: 6rem 2.5rem;
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
+    /* ── CENTRAL ORB ── */
+    .orb-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .section-label {
-      font-size: 0.7rem; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--muted);
-      margin-bottom: 3rem;
+
+    .orb {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,245,220,0.55) 0%, transparent 55%),
+        radial-gradient(circle at 65% 70%, rgba(100,60,180,0.25) 0%, transparent 60%),
+        radial-gradient(circle at 50% 50%, #1a1a3a 30%, #0a0818 100%);
+      box-shadow:
+        0 0 80px 30px rgba(201,168,76,0.12),
+        0 0 200px 60px rgba(100,60,180,0.12),
+        inset 0 0 60px rgba(201,168,76,0.08);
+      animation: orbFloat 7s ease-in-out infinite, orbPulse 4s ease-in-out infinite alternate;
+      position: relative;
+      z-index: 3;
     }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1px;
-      border: 1px solid var(--border);
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-22px); }
     }
-    .card {
-      background: var(--surface);
-      padding: 2rem;
-      transition: background 0.2s;
-      position: relative; overflow: hidden;
+    @keyframes orbPulse {
+      from { box-shadow: 0 0 80px 30px rgba(201,168,76,0.10), 0 0 200px 60px rgba(100,60,180,0.10), inset 0 0 60px rgba(201,168,76,0.07); }
+      to   { box-shadow: 0 0 120px 50px rgba(201,168,76,0.20), 0 0 280px 90px rgba(100,60,180,0.18), inset 0 0 80px rgba(201,168,76,0.14); }
     }
-    .card:hover { background: #181824; }
-    .card::before {
+
+    /* Inner rune ring */
+    .orb-ring {
+      position: absolute;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.18);
+      animation: orbFloat 7s ease-in-out infinite, ringRotate 24s linear infinite;
+      z-index: 2;
+    }
+    .orb-ring::before {
       content: '';
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transform: scaleX(0); transform-origin: left;
-      transition: transform 0.3s;
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      border: 1px dashed rgba(201,168,76,0.10);
+      animation: ringRotate 14s linear infinite reverse;
     }
-    .card:hover::before { transform: scaleX(1); }
-    .card-num {
-      font-size: 0.68rem; letter-spacing: 0.12em;
-      color: var(--muted); margin-bottom: 1.2rem;
+    @keyframes ringRotate {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
-    .card h3 {
-      font-family: var(--font-h); font-size: 1.1rem;
-      font-weight: 700; margin-bottom: 0.6rem;
-      letter-spacing: -0.02em;
-    }
-    .card p { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
 
-    /* ── Footer ── */
-    footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 2rem 2.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.72rem; color: var(--muted);
-      flex-wrap: wrap; gap: 1rem;
+    /* Orbit dots */
+    .orbit-dot {
+      position: absolute;
+      border-radius: 50%;
+      animation: orbFloat 7s ease-in-out infinite;
     }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--accent); }
+    .orbit-dot:nth-child(1) { width: 10px; height: 10px; background: var(--gold); top: -5px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 14px 4px rgba(201,168,76,0.6); animation-delay: 0s; }
+    .orbit-dot:nth-child(2) { width: 7px;  height: 7px;  background: var(--silver); bottom: -3px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 10px 3px rgba(158,184,212,0.5); animation-delay: -1s; }
+    .orbit-dot:nth-child(3) { width: 8px;  height: 8px;  background: var(--blush); left: -4px; top: 50%; transform: translateY(-50%); box-shadow: 0 0 12px 3px rgba(201,128,154,0.5); animation-delay: -2s; }
 
-    /* ── Entrance animations ── */
+    /* ── FLOATING CARDS ── */
+    .cards {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .card {
+      position: absolute;
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+      pointer-events: all;
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(.23,1,.32,1), box-shadow 0.4s ease, border-color 0.4s ease;
+    }
+    .card:hover {
+      border-color: rgba(201,168,76,0.45);
+      box-shadow: 0 16px 60px rgba(0,0,0,0.55), 0 0 40px rgba(201,168,76,0.12), inset 0 1px 0 rgba(255,255,255,0.09);
+      transform: translateY(-8px) scale(1.025) !important;
+    }
+
+    .card-label {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 300;
+      line-height: 1.3;
+      color: var(--gold-pale);
+      margin-bottom: 6px;
+    }
+    .card-sub {
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--silver);
+      opacity: 0.75;
+    }
+
+    /* Individual card positions & float animations */
+    .card-1 { top: 10%; left: 4%; width: 220px; animation: float1 8s ease-in-out infinite; }
+    .card-2 { top: 8%;  right: 5%; width: 210px; animation: float2 9s ease-in-out infinite; }
+    .card-3 { bottom: 18%; left: 5%; width: 200px; animation: float3 7.5s ease-in-out infinite; }
+    .card-4 { bottom: 15%; right: 4%; width: 215px; animation: float4 8.5s ease-in-out infinite; }
+    .card-5 { top: 42%; left: 2%; width: 180px; animation: float5 10s ease-in-out infinite; }
+    .card-6 { top: 38%; right: 2%; width: 185px; animation: float1 11s ease-in-out infinite reverse; }
+
+    @keyframes float1 { 0%,100%{transform:translateY(0)  rotate(-1.5deg)} 50%{transform:translateY(-18px) rotate(0.5deg)} }
+    @keyframes float2 { 0%,100%{transform:translateY(0)  rotate(1deg)}    50%{transform:translateY(-22px) rotate(-0.5deg)} }
+    @keyframes float3 { 0%,100%{transform:translateY(0)  rotate(0.5deg)}  50%{transform:translateY(-14px) rotate(-1deg)} }
+    @keyframes float4 { 0%,100%{transform:translateY(0)  rotate(-1deg)}   50%{transform:translateY(-20px) rotate(1deg)} }
+    @keyframes float5 { 0%,100%{transform:translateY(0)  rotate(2deg)}    50%{transform:translateY(-16px) rotate(-0.5deg)} }
+
+    /* ── TITLE BLOCK ── */
+    .title-block {
+      position: fixed;
+      bottom: 7%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 5;
+      animation: fadeUp 2s cubic-bezier(.23,1,.32,1) both;
+    }
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
-    .hero-tag  { animation: fadeUp 0.6s ease both; }
-    h1         { animation: fadeUp 0.6s 0.1s ease both; }
-    .hero-sub  { animation: fadeUp 0.6s 0.2s ease both; }
-    .btn-row   { animation: fadeUp 0.6s 0.3s ease both; }
-    .status-bar{ animation: fadeUp 0.6s 0.4s ease both; }
 
-    @media (max-width: 600px) {
-      nav { padding: 1rem 1.2rem; }
-      .nav-links { display: none; }
-      .hero { padding: 6rem 1.2rem 3rem; }
-      .section { padding: 4rem 1.2rem; }
-      footer { padding: 1.5rem 1.2rem; }
+    .title-main {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, #c9a84c 0%, #e8d5a0 40%, #c9a84c 70%, #9eb8d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px rgba(201,168,76,0.4));
+    }
+    .title-sub {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--silver);
+      opacity: 0.6;
+      margin-top: 8px;
+      letter-spacing: 0.18em;
+    }
+
+    /* ── PARTICLES RING ── */
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      animation: particleDrift linear infinite;
+    }
+
+    @keyframes particleDrift {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { opacity: 0; transform: translateY(-120vh) scale(1.2); }
+    }
+
+    /* ── INTRO FADE ── */
+    .intro-veil {
+      position: fixed;
+      inset: 0;
+      background: var(--void);
+      z-index: 100;
+      animation: veilFade 2s ease-out 0.2s forwards;
+    }
+    @keyframes veilFade {
+      to { opacity: 0; pointer-events: none; }
     }
   </style>
 </head>
 <body>
 
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
+  <div class="intro-veil"></div>
+  <canvas id="stars"></canvas>
+  <div class="aurora"></div>
 
-  <!-- Nav -->
-  <nav>
-    <a class="logo" href="#">My<span>App</span></a>
-    <ul class="nav-links">
-      <li><a href="#features">Features</a></li>
-      <li><a href="#docs">Docs</a></li>
-      <li><a href="#about">About</a></li>
-    </ul>
-    <span class="nav-badge">v1.0.0</span>
-  </nav>
+  <!-- Floating particles -->
+  <div class="particles" id="particles"></div>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <p class="hero-tag">Deployment ready</p>
-      <h1>Ship fast.<br /><em>Stay sharp.</em></h1>
-      <p class="hero-sub">
-        A clean starting point for your next web deployment.
-        Replace this content with your app — the structure, styles, and
-        layout are production-ready out of the box.
-      </p>
-      <div class="btn-row">
-        <a href="#features" class="btn btn-primary">Get Started ↓</a>
-        <a href="#docs" class="btn btn-ghost">View Docs</a>
+  <!-- Floating cards -->
+  <div class="cards">
+    <div class="card card-1">
+      <div class="card-label">Discovery</div>
+      <div class="card-title">Worlds yet unseen</div>
+      <div class="card-sub">Drifting at the edge of knowing</div>
+    </div>
+    <div class="card card-2">
+      <div class="card-label">Memory</div>
+      <div class="card-title">Echoes of starlight</div>
+      <div class="card-sub">Soft impressions left by time</div>
+    </div>
+    <div class="card card-3">
+      <div class="card-label">Creation</div>
+      <div class="card-title">Born from stillness</div>
+      <div class="card-sub">Form emerging from the void</div>
+    </div>
+    <div class="card card-4">
+      <div class="card-label">Passage</div>
+      <div class="card-title">Between two skies</div>
+      <div class="card-sub">A threshold, endlessly crossed</div>
+    </div>
+    <div class="card card-5">
+      <div class="card-label">Silence</div>
+      <div class="card-title">The sound of deep space</div>
+      <div class="card-sub">Where light forgets its name</div>
+    </div>
+    <div class="card card-6">
+      <div class="card-label">Return</div>
+      <div class="card-title">Tidal pull of home</div>
+      <div class="card-sub">Gravity dressed as longing</div>
+    </div>
+  </div>
+
+  <!-- Central orb -->
+  <div class="scene">
+    <div class="orb-wrap">
+      <div class="orb-ring">
+        <div class="orbit-dot"></div>
+        <div class="orbit-dot"></div>
+        <div class="orbit-dot"></div>
       </div>
+      <div class="orb"></div>
+    </div>
+  </div>
 
-      <div class="status-bar">
-        <div class="status-item"><span class="dot"></span> Server running</div>
-        <div class="status-item">ENV: <strong style="color:var(--text)">production</strong></div>
-        <div class="status-item">Build: <strong style="color:var(--text)">#001</strong></div>
-        <div class="status-item">Region: <strong style="color:var(--text)">ap-south-1</strong></div>
-      </div>
-    </section>
+  <!-- Title -->
+  <div class="title-block">
+    <div class="title-main">Floating World</div>
+    <div class="title-sub">ukiyo · 浮世 · the fleeting</div>
+  </div>
 
-    <!-- Features -->
-    <section class="section" id="features">
-      <p class="section-label">// What's included</p>
-      <div class="cards">
-        <div class="card">
-          <p class="card-num">01</p>
-          <h3>Zero Dependencies</h3>
-          <p>Pure HTML, CSS, and vanilla JS. No build tools required — just open and deploy.</p>
-        </div>
-        <div class="card">
-          <p class="card-num">02</p>
-          <h3>Responsive Layout</h3>
-          <p>Fluid grids and clamp-based typography adapt gracefully from mobile to wide screens.</p>
-        </div>
-        <div class="card">
-          <p class="card-num">03</p>
-          <h3>CSS Variables</h3>
-          <p>All colors and tokens defined at the root — swap the theme in seconds.</p>
-        </div>
-        <div class="card">
-          <p class="card-num">04</p>
-          <h3>Performance First</h3>
-          <p>Minimal requests, font preconnect, and no render-blocking scripts included.</p>
-        </div>
-      </div>
-    </section>
-  </main>
+  <script>
+    /* ── STAR CANVAS ── */
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let W, H, stars = [];
 
-  <!-- Footer -->
-  <footer>
-    <span>© 2026 MyApp. All rights reserved.</span>
-    <span>Built with ♥ — <a href="#">Privacy</a> · <a href="#">Terms</a></span>
-  </footer>
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
 
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 280; i++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: Math.random() * 1.4 + 0.2,
+          a: Math.random(),
+          da: (Math.random() - 0.5) * 0.005,
+          speed: Math.random() * 0.08 + 0.01,
+          hue: Math.random() > 0.8 ? 45 : 210
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, W, H);
+      stars.forEach(s => {
+        s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+        if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+        s.y -= s.speed;
+        if (s.y < 0) { s.y = H; s.x = Math.random() * W; }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${s.hue},60%,88%,${s.a})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', () => { resize(); initStars(); });
+    resize(); initStars(); drawStars();
+
+    /* ── PARTICLES ── */
+    const pContainer = document.getElementById('particles');
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 3 + 1;
+      const colors = ['#c9a84c','#9eb8d4','#c9809a','#e8d5a0'];
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*20}%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${Math.random()*14+8}s;
+        animation-delay:${Math.random()*10}s;
+        opacity:0;
+      `;
+      pContainer.appendChild(p);
+    }
+
+    /* ── PARALLAX ── */
+    document.addEventListener('mousemove', e => {
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      const dx = (e.clientX - cx) / cx, dy = (e.clientY - cy) / cy;
+      document.querySelectorAll('.card').forEach((card, i) => {
+        const depth = 0.015 + (i % 3) * 0.01;
+        const base = card.style.transform || '';
+        const floatPart = base.includes('translateY') ? '' : '';
+        card.style.setProperty('--mx', `${dx * 20 * depth}px`);
+        card.style.setProperty('--my', `${dy * 20 * depth}px`);
+      });
+      const orb = document.querySelector('.orb');
+      orb.style.transform = `translateY(${Math.sin(Date.now()/1000)*22}px) translate(${dx*10}px,${dy*10}px)`;
+    });
+
+    /* ── ORB CLICK RIPPLE ── */
+    document.querySelector('.orb').addEventListener('click', function(e) {
+      const ripple = document.createElement('div');
+      ripple.style.cssText = `
+        position:fixed;
+        border-radius:50%;
+        border:1px solid rgba(201,168,76,0.6);
+        pointer-events:none;
+        z-index:10;
+        left:50%; top:50%;
+        transform:translate(-50%,-50%) scale(1);
+        width:220px; height:220px;
+        animation: rippleOut 1s ease-out forwards;
+      `;
+      document.body.appendChild(ripple);
+      const style = document.createElement('style');
+      style.textContent = `@keyframes rippleOut { to { transform:translate(-50%,-50%) scale(4); opacity:0; } }`;
+      document.head.appendChild(style);
+      setTimeout(() => { ripple.remove(); style.remove(); }, 1000);
+    });
+  </script>
 </body>
 </html>

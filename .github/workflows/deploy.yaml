@@ -9,18 +9,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        env:
-          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}
+      - name: Copy and Restart
         run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/key.pem
-          chmod 600 ~/.ssh/key.pem
-          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2>/dev/null
-          scp -i ~/.ssh/key.pem -r ./* $USER@$HOST:/tmp/deploy/
-          ssh -i ~/.ssh/key.pem $USER@$HOST "sudo cp -r /tmp/deploy/* /var/www/html/ && sudo rm -rf /tmp/deploy && sudo systemctl restart nginx"
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          scp -i key.pem index.html ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/index.html
+          ssh -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
