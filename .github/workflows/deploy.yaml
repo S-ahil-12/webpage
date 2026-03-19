@@ -22,7 +22,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh 
           echo "$SSH_KEY" > ~/.ssh/key.pem
-          chmod 600 ~/.ssh/key.pem
+          chmod 400 ~/.ssh/key.pem
           ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2> /dev/null
-          scp -i key.pem -r ./* $USER@$HOST:/tmp/deploy/
-          scp -i key.pem $USER@HOST "cp -r /tmp/deploy/* /var/www/html/ && rm -rf /tmp/deploy/* && systemctl restart nginx"
+          scp -i ~/.ssh/key.pem -r ./* $USER@$HOST:/tmp/deploy/
+          scp -i ~/.ssh/key.pem $USER@HOST "sudo cp -r /tmp/deploy/* /var/www/html/ && rm -rf /tmp/deploy/* && systemctl restart nginx"
