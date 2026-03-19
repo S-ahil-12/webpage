@@ -25,4 +25,4 @@ jobs:
           chmod 400 ~/.ssh/key.pem
           ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2> /dev/null
           scp -i ~/.ssh/key.pem -r ./* $USER@$HOST:/tmp/deploy/
-          ssh -i ~/.ssh/key.pem $USER@$HOST "sudo cp -r /tmp/deploy/* /var/www/html/ && rm -rf /tmp/deploy/* && systemctl restart nginx"
+          ssh -i ~/.ssh/key.pem $USER@$HOST "sudo cp -r /tmp/deploy/* /var/www/html/ && rm -rf /tmp/deploy/* && sudo systemctl restart nginx"
