@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyApp — Deployed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #13131c;
+      --border:   #1f1f30;
+      --accent:   #5cffb1;
+      --accent2:  #a78bfa;
+      --text:     #e8e8f0;
+      --muted:    #5a5a78;
+      --font-h:   'Syne', sans-serif;
+      --font-m:   'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-m);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* ── Glow blobs ── */
+    .blob {
+      position: fixed; border-radius: 50%;
+      filter: blur(120px); opacity: 0.18;
+      pointer-events: none; z-index: 0;
+    }
+    .blob-1 { width: 520px; height: 520px; background: var(--accent);  top: -160px; left: -140px; }
+    .blob-2 { width: 420px; height: 420px; background: var(--accent2); bottom: -120px; right: -100px; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.75);
+      backdrop-filter: blur(14px);
+    }
+    .logo {
+      font-family: var(--font-h);
+      font-weight: 800; font-size: 1.1rem;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-badge {
+      font-size: 0.7rem; letter-spacing: 0.05em;
+      padding: 0.3rem 0.9rem;
+      border: 1px solid var(--accent);
+      border-radius: 2px; color: var(--accent);
+    }
+
+    /* ── Hero ── */
+    main { position: relative; z-index: 1; }
+
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 8rem 2.5rem 4rem;
+      max-width: 900px;
+    }
+    .hero-tag {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .hero-tag::before {
+      content: ''; display: inline-block;
+      width: 28px; height: 1px; background: var(--accent);
+    }
+    h1 {
+      font-family: var(--font-h);
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 800; line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.8rem;
+    }
+    h1 em {
+      font-style: normal;
+      -webkit-text-stroke: 1px var(--accent2);
+      color: transparent;
+    }
+    .hero-sub {
+      font-size: 0.95rem; line-height: 1.8;
+      color: var(--muted); max-width: 480px;
+      margin-bottom: 2.8rem;
+    }
+    .btn-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-m); font-size: 0.8rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.85rem 1.8rem; text-decoration: none;
+      border: 1px solid; border-radius: 2px;
+      cursor: pointer; transition: all 0.22s;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--bg);
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: transparent; color: var(--accent); }
+    .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+    .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Status bar ── */
+    .status-bar {
+      margin-top: 4rem;
+      display: flex; align-items: center; gap: 2rem;
+      padding: 1rem 1.4rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      font-size: 0.75rem; color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .status-item { display: flex; align-items: center; gap: 0.5rem; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ── Cards section ── */
+    .section {
+      padding: 6rem 2.5rem;
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 3rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+    }
+    .card {
+      background: var(--surface);
+      padding: 2rem;
+      transition: background 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .card:hover { background: #181824; }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .card:hover::before { transform: scaleX(1); }
+    .card-num {
+      font-size: 0.68rem; letter-spacing: 0.12em;
+      color: var(--muted); margin-bottom: 1.2rem;
+    }
+    .card h3 {
+      font-family: var(--font-h); font-size: 1.1rem;
+      font-weight: 700; margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+    .card p { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.72rem; color: var(--muted);
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* ── Entrance animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-tag  { animation: fadeUp 0.6s ease both; }
+    h1         { animation: fadeUp 0.6s 0.1s ease both; }
+    .hero-sub  { animation: fadeUp 0.6s 0.2s ease both; }
+    .btn-row   { animation: fadeUp 0.6s 0.3s ease both; }
+    .status-bar{ animation: fadeUp 0.6s 0.4s ease both; }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      .hero { padding: 6rem 1.2rem 3rem; }
+      .section { padding: 4rem 1.2rem; }
+      footer { padding: 1.5rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a class="logo" href="#">My<span>App</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <span class="nav-badge">v1.0.0</span>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <p class="hero-tag">Deployment ready</p>
+      <h1>Ship fast.<br /><em>Stay sharp.</em></h1>
+      <p class="hero-sub">
+        A clean starting point for your next web deployment.
+        Replace this content with your app — the structure, styles, and
+        layout are production-ready out of the box.
+      </p>
+      <div class="btn-row">
+        <a href="#features" class="btn btn-primary">Get Started ↓</a>
+        <a href="#docs" class="btn btn-ghost">View Docs</a>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-item"><span class="dot"></span> Server running</div>
+        <div class="status-item">ENV: <strong style="color:var(--text)">production</strong></div>
+        <div class="status-item">Build: <strong style="color:var(--text)">#001</strong></div>
+        <div class="status-item">Region: <strong style="color:var(--text)">ap-south-1</strong></div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+      <p class="section-label">// What's included</p>
+      <div class="cards">
+        <div class="card">
+          <p class="card-num">01</p>
+          <h3>Zero Dependencies</h3>
+          <p>Pure HTML, CSS, and vanilla JS. No build tools required — just open and deploy.</p>
+        </div>
+        <div class="card">
+          <p class="card-num">02</p>
+          <h3>Responsive Layout</h3>
+          <p>Fluid grids and clamp-based typography adapt gracefully from mobile to wide screens.</p>
+        </div>
+        <div class="card">
+          <p class="card-num">03</p>
+          <h3>CSS Variables</h3>
+          <p>All colors and tokens defined at the root — swap the theme in seconds.</p>
+        </div>
+        <div class="card">
+          <p class="card-num">04</p>
+          <h3>Performance First</h3>
+          <p>Minimal requests, font preconnect, and no render-blocking scripts included.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <span>© 2026 MyApp. All rights reserved.</span>
+    <span>Built with ♥ — <a href="#">Privacy</a> · <a href="#">Terms</a></span>
+  </footer>
+
+</body>
+</html>
